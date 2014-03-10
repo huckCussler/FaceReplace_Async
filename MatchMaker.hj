@@ -1,0 +1,50 @@
+package frAsync;
+
+import java.util.*;
+
+public class MatchMaker{
+    
+    private LinkedList<SrcRgn> sources;
+    private ArrayList<ImgRgn> targets;
+    private HashMap<SrcRgn, ImgRgn> matches;
+
+    MatchMaker(Master srcs, Master tgts){
+	sources = new LinkedList<SrcRgn>();
+	targets = new ArrayList<ImgRgn>(tgts.getImgRgns());
+	ArrayList<ImgRgn> temp = new ArrayList<ImgRgn>(srcs.getImgRgns());
+	for(int i=0; i<temp.size(); i++)
+	    sources.add(new SrcRgn(temp.get(i), targets));
+	matches = makeMatches();
+    }
+
+    private HashMap<SrcRgn, ImgRgn> makeMatches(){
+	HashMap<SrcRgn, ImgRgn> matches = new HashMap<SrcRgn, ImgRgn>(targets.size());
+	while(!sources.isEmpty()){
+	    SrcRgn curr = sources.getFirst();
+	    ImgRgn matchWanted = curr.getNextMatch();
+	    if(matchWanted.getMatch() == null){
+		setMatch(curr, matchWanted);
+		matches.put(sources.poll(), matchWanted);
+	    }
+	    else if(curr.computeMatchScore(matchWanted) < ((SrcRgn) matchWanted.getMatch()).computeMatchScore(matchWanted)){
+		sources.add((SrcRgn) matchWanted.getMatch());
+		matches.remove(matchWanted.getMatch());
+		unsetMatch(matchWanted.getMatch(), matchWanted);
+		setMatch(curr, matchWanted);
+		matches.put(sources.poll(), matchWanted);
+	    }
+	}
+	return matches;
+    }
+
+    private void setMatch(SrcRgn src, ImgRgn tgt){
+	src.setMatch(tgt);
+	tgt.setMatch(src);
+    }
+
+
+    private void unsetMatch(ImgRgn src, ImgRgn tgt){
+	src.setMatch(null);
+	tgt.setMatch(null);
+    }
+}

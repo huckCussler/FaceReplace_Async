@@ -1,0 +1,64 @@
+package frAsync;
+
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+import javax.imageio.ImageIO;
+
+public class Master{
+    
+    private String name;
+    private String dir;
+    private String rectFile;
+    private String imgFile;
+    private ArrayList<Rectangle> rects;
+    private ConcurrentLinkedQueue<ImgRgn> rgns;
+    
+    Master(String _name, String _dir){
+	name = _name;
+	dir = _dir;
+	rectFile = name == "Source" ? "srcRct.txt" : "tgtRct.txt";
+	imgFile = name == "Source" ? "srcImg.jpg" : "tgtImg.jpg";
+	rects = getRects();
+	rgns = setImgRgns();
+    }
+
+    private ArrayList<Rectangle> getRects(){
+	ArrayList<Rectangle> rects = new ArrayList<Rectangle>();
+	try{
+	    Scanner sc = new Scanner(new File(dir + rectFile));
+	    while(sc.hasNextLine()){
+		String params = sc.nextLine();
+		String[] args = params.split("[ ,]+");
+		rects.add(new Rectangle(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
+					Integer.parseInt(args[2]), Integer.parseInt(args[3])));
+	    }
+	}
+	catch(FileNotFoundException e){
+	    System.err.println("Rectangle file not found in Master.getRects");
+	}
+	return rects;
+    }
+
+    private ConcurrentLinkedQueue<ImgRgn> setImgRgns(){
+	ConcurrentLinkedQueue<ImgRgn> rgns = new ConcurrentLinkedQueue<ImgRgn>();
+	BufferedImage bigImg;
+	try{
+	    bigImg = ImageIO.read(new File(dir + imgFile));
+	    for(int i=0; i<rects.size(); i++){
+		Rectangle r = rects.get(i);
+		BufferedImage img = bigImg.getSubimage((int)r.getX(), (int)r.getY(), (int)r.getWidth(), (int)r.getHeight());
+		rgns.add(new ImgRgn(img, r));
+	    }
+	}
+	catch(IOException e){
+	    System.err.println("Image file not found in Master.setImgRgns");
+	}
+	return rgns;
+    }
+    
+    public ConcurrentLinkedQueue<ImgRgn> getImgRgns(){ return rgns; }
+}

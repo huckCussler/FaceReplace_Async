@@ -1,0 +1,24 @@
+package frAsync;
+
+public class Main{
+    public static void main(String[] args){
+	long[] times = new long[8];
+	for(int i=0; i<8; i++){
+	    long startTime = System.currentTimeMillis();
+	    Master[] tgtsAndSrcs = new Master[2];
+	    finish{
+		async tgtsAndSrcs[0] = new Master("Target", args[0]);
+		tgtsAndSrcs[1] = new Master("Source", args[0]);
+	    }
+	    MatchMaker matcher = new MatchMaker(tgtsAndSrcs[1], tgtsAndSrcs[0]);
+	    long endTime = System.currentTimeMillis();
+	    long elapsedTime = endTime - startTime;
+	    System.out.println("elapsed time: " + elapsedTime);
+	    times[i] = elapsedTime;
+	}
+	long sumOfTimes = 0;
+	for(int i=1; i<times.length; i++)
+	    sumOfTimes += times[i];
+	System.out.println("avg time: " + (sumOfTimes / 7));
+    }
+}

@@ -1,0 +1,49 @@
+package frAsync;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
+public class ImgRgn{
+    
+    private BufferedImage img;
+    private Rectangle rect;
+    private Color avgColor;
+    private ImgRgn match;
+
+    ImgRgn(BufferedImage _img, Rectangle _rect){
+	img = _img;
+	rect = _rect;
+	avgColor = setAvgColor();
+    }
+
+    ImgRgn(ImgRgn toPromote){
+	img = toPromote.img;
+	rect = toPromote.rect;
+	avgColor = toPromote.avgColor;
+	match = toPromote.match;
+    }
+
+    private Color setAvgColor(){
+	int red, grn, blu;
+	red = grn = blu = 0;
+	int[] colors = new int[3];
+	for(int i=0; i<img.getWidth(); i++){
+	    for(int j=0; j<img.getHeight(); j++){
+		int color = img.getRGB(i,j);
+		red += (color >> 16) & 0xFF;
+		grn += (color >> 8) & 0xFF;
+		blu += color & 0xFF;
+	    }
+	}
+	int pixCnt = img.getWidth() * img.getHeight();
+	return new Color(red/pixCnt, grn/pixCnt, blu/pixCnt);
+    }
+
+    public Color getAvgColor(){ return avgColor; }
+    
+    public ImgRgn getMatch(){ return match; }
+    
+    public void setMatch(ImgRgn matchee){ match = matchee; }
+
+    public Rectangle getRect(){ return rect; }
+}
